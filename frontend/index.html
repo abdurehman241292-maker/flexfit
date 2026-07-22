@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlexFit — Tailored for the Bold</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <div class="brand">
+      <div class="crest"><span>FF</span></div>
+      <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+    </div>
+    <nav class="nav-links">
+      <a href="#shirts">Shirts</a>
+      <a href="#caps">Caps</a>
+      <a href="#trousers">Trousers</a>
+      <a href="#jackets">Jackets</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-inner">
+    <span class="eyebrow">The FlexFit Collection</span>
+    <h1>Dressed like royalty, <em>built to move.</em></h1>
+    <p>Shirts, caps, trousers and jackets cut for everyday wear — with the finish of something far more formal. Browse the collection and order straight from the page.</p>
+    <a href="#shirts" class="btn btn-solid">Explore the Collection</a>
+  </div>
+</section>
+
+<nav class="category-strip">
+  <div class="container">
+    <button class="category-tab" data-target="shirts">Shirts</button>
+    <button class="category-tab" data-target="caps">Caps</button>
+    <button class="category-tab" data-target="trousers">Trousers</button>
+    <button class="category-tab" data-target="jackets">Jackets</button>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="section" id="shirts">
+    <div class="section-head">
+      <div><span class="eyebrow">Category 01</span><h2>Shirts</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="product-grid" id="grid-shirts"><div class="empty-state">Loading…</div></div>
+      <aside class="category-aside">
+        <div class="aside-numeral">I</div>
+        <div class="aside-rule"></div>
+        <p class="aside-quote">Structured through the shoulder, soft against the skin.</p>
+        <p class="aside-note">Every shirt is finished on the same line as our formalwear — worn casually, built properly.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="caps">
+    <div class="section-head">
+      <div><span class="eyebrow">Category 02</span><h2>Caps</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="product-grid" id="grid-caps"><div class="empty-state">Loading…</div></div>
+      <aside class="category-aside">
+        <div class="aside-numeral">II</div>
+        <div class="aside-rule"></div>
+        <p class="aside-quote">Small statement, high build.</p>
+        <p class="aside-note">Structured panels and a stitched brim, made to hold shape wear after wear.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="trousers">
+    <div class="section-head">
+      <div><span class="eyebrow">Category 03</span><h2>Trousers</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="product-grid" id="grid-trousers"><div class="empty-state">Loading…</div></div>
+      <aside class="category-aside">
+        <div class="aside-numeral">III</div>
+        <div class="aside-rule"></div>
+        <p class="aside-quote">Cut to hold a line, all day long.</p>
+        <p class="aside-note">Tailored through the leg with room to move — built for standing, sitting, and everything after.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="jackets">
+    <div class="section-head">
+      <div><span class="eyebrow">Category 04</span><h2>Jackets</h2></div>
+    </div>
+    <div class="section-body">
+      <div class="product-grid" id="grid-jackets"><div class="empty-state">Loading…</div></div>
+      <aside class="category-aside">
+        <div class="aside-numeral">IV</div>
+        <div class="aside-rule"></div>
+        <p class="aside-quote">The last layer on, the first thing noticed.</p>
+        <p class="aside-note">Weighted fabric and a clean silhouette — the piece that finishes the outfit.</p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="brand">
+      <div class="crest"><span>FF</span></div>
+      <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+    </div>
+    <a href="admin/login.html" class="footer-admin-link">Admin Access →</a>
+  </div>
+  <div class="footer-bottom">© 2026 FlexFit. All rights reserved.</div>
+</footer>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderOverlay">
+  <div class="modal">
+    <button class="modal-close" id="closeModal">&times;</button>
+    <h3 id="modalProductName">Order Product</h3>
+    <p class="modal-sub" id="modalProductPrice"></p>
+    <form id="orderForm">
+      <input type="hidden" id="orderProductId">
+      <div class="field-row">
+        <div class="field">
+          <label>Size</label>
+          <select id="orderSize">
+            <option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" id="orderQty" value="1" min="1" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="orderName" required>
+      </div>
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" id="orderPhone" required>
+      </div>
+      <div class="field">
+        <label>Delivery Address</label>
+        <textarea id="orderAddress" rows="3" required></textarea>
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <input type="text" id="orderNotes" placeholder="e.g. gift wrap, preferred delivery time">
+      </div>
+      <button type="submit" class="btn btn-solid btn-block">Place Order</button>
+      <div class="form-msg" id="orderMsg"></div>
+    </form>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+</body>
+</html>

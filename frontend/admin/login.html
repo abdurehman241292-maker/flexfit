@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlexFit Admin — Login</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { background: var(--grad-royal-radial); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-box {
+    background: var(--ivory);
+    width: 100%; max-width: 380px;
+    padding: 44px 38px;
+    border-top: 3px solid transparent;
+    border-image: var(--grad-gold) 1;
+    box-shadow: 0 24px 60px rgba(10,15,30,0.4);
+  }
+  .login-box .crest { margin: 0 auto 20px; }
+  .login-box h2 { text-align: center; margin-bottom: 6px; }
+  .login-box p.sub { text-align: center; color: #7c7a70; font-size: 0.85rem; margin-bottom: 28px; }
+</style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="crest"><span>FF</span></div>
+    <h2>Admin Access</h2>
+    <p class="sub">Sign in to manage the FlexFit catalog</p>
+    <form id="loginForm">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="username" required autofocus>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit" class="btn btn-solid btn-block">Sign In</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+  </div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("loginMsg");
+  msg.textContent = "Signing in…";
+  msg.className = "form-msg";
+
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Login failed");
+    window.location.href = "dashboard.html";
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = "form-msg error";
+  }
+});
+</script>
+</body>
+</html>
