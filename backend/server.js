@@ -43,6 +43,10 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err.message));
-
+// Catch errors (like oversized file uploads) and always respond with JSON
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(400).json({ error: err.message || "Something went wrong" });
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`FlexFit server running on port ${PORT}`));
