@@ -26,13 +26,13 @@ router.post("/", async (req, res) => {
     });
 
     // Send email notification - don't fail the order if email fails
-    try {
-      await sendOrderNotification(order);
-    } catch (mailErr) {
-      console.error("Email notification failed:", mailErr.message);
-    }
-
+   // Respond to the customer immediately - don't make them wait on email
     res.status(201).json({ success: true, orderId: order._id });
+
+    // Send email notification in the background (fire-and-forget)
+    sendOrderNotification(order).catch((mailErr) => {
+      console.error("Email notification failed:", mailErr.message);
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
