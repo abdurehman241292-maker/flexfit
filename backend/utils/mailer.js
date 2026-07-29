@@ -1,15 +1,6 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
-  },
-  connectionTimeout: 15000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function sendOrderNotification(order) {
   const html = `
@@ -29,12 +20,16 @@ async function sendOrderNotification(order) {
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"FlexFit Orders" <${process.env.SMTP_EMAIL}>`,
+  const { error } = await resend.emails.send({
+    from: "FlexFit Orders <onboarding@resend.dev>",
     to: process.env.NOTIFY_EMAIL,
     subject: `New Order: ${order.productName} (x${order.quantity})`,
     html,
   });
+
+  if (error) {
+    throw new Error(error.message || "Resend failed to send email");
+  }
 }
 
 module.exports = { sendOrderNotification };
