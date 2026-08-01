@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — FlexFit</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { background: var(--cream); }
+  .checkout-header {
+    background: var(--grad-emerald); padding: 20px 0; border-bottom: 1px solid var(--border-hairline);
+  }
+  .checkout-header .container { display: flex; align-items: center; justify-content: space-between; }
+  .checkout-wrap {
+    max-width: 1100px; margin: 0 auto; padding: 50px 28px 100px;
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 60px;
+  }
+  .checkout-section { margin-bottom: 36px; }
+  .checkout-section h3 { font-size: 1.25rem; margin-bottom: 18px; }
+  .payment-option {
+    border: 1px solid var(--border-hairline); padding: 16px 18px; border-radius: var(--radius);
+    display: flex; align-items: center; gap: 12px; background: #fff; margin-bottom: 10px;
+  }
+  .payment-option input { accent-color: var(--copper-deep); }
+  .order-summary { background: #fff; border: 1px solid var(--border-hairline); padding: 28px; align-self: start; position: sticky; top: 30px; }
+  .summary-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-hairline); }
+  .summary-item img { width: 60px; height: 72px; object-fit: cover; }
+  .summary-item-info { flex: 1; font-size: 0.9rem; }
+  .summary-item-name { font-family: var(--font-display); font-weight: 600; color: var(--emerald-deep); }
+  .summary-item-meta { color: #8a8367; font-size: 0.78rem; margin-top: 4px; }
+  .summary-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 0.9rem; }
+  .summary-total { display: flex; justify-content: space-between; font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--emerald-deep); padding-top: 14px; border-top: 1px solid var(--border-hairline); }
+  @media (max-width: 900px) { .checkout-wrap { grid-template-columns: 1fr; } .order-summary { position: static; } }
+</style>
+</head>
+<body>
+
+<header class="checkout-header">
+  <div class="container">
+    <div class="brand">
+      <div class="crest"><span>FF</span></div>
+      <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+    </div>
+    <a href="index.html" class="btn btn-ghost" style="padding:10px 18px;">← Back to Store</a>
+  </div>
+</header>
+
+<div class="checkout-wrap">
+  <div>
+    <div class="checkout-section">
+      <h3>Contact</h3>
+      <div class="field">
+        <label>Email (optional)</label>
+        <input type="email" id="custEmail" placeholder="you@example.com">
+      </div>
+    </div>
+
+    <div class="checkout-section">
+      <h3>Delivery</h3>
+      <div class="field-row">
+        <div class="field"><label>Full Name</label><input type="text" id="custName" required></div>
+        <div class="field"><label>Phone</label><input type="tel" id="custPhone" required></div>
+      </div>
+      <div class="field"><label>Address</label><textarea id="custAddress" rows="2" required></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>City</label><input type="text" id="custCity" required></div>
+        <div class="field"><label>Postal Code (optional)</label><input type="text" id="custPostal"></div>
+      </div>
+      <div class="field"><label>Notes (optional)</label><input type="text" id="custNotes" placeholder="e.g. preferred delivery time"></div>
+    </div>
+
+    <div class="checkout-section">
+      <h3>Payment</h3>
+      <div class="payment-option">
+        <input type="radio" name="payment" checked readonly>
+        <div>
+          <strong>Cash on Delivery (COD)</strong>
+          <div style="font-size:0.8rem;color:#8a8367;">Pay in cash when your order arrives.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-solid btn-block" id="placeOrderBtn">Place Order</button>
+    <div class="form-msg" id="checkoutMsg"></div>
+  </div>
+
+  <div class="order-summary" id="orderSummary">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom:16px;">
+          <div class="crest"><span>FF</span></div>
+          <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+        </div>
+        <p style="max-width:320px;">Shirts, caps, trousers and jackets cut for everyday wear, with the finish of something far more formal.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:abdurehman241292@gmail.com">abdurehman241292@gmail.com</a>
+        <a href="tel:03265810966">0326-5810966</a>
+      </div>
+    </div>
+    <div class="footer-bottom">Created by <strong>Abdurehman</strong> · © 2026 FlexFit. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const cart = JSON.parse(localStorage.getItem("flexfit_cart") || "[]");
+const summaryEl = document.getElementById("orderSummary");
+
+function renderSummary() {
+  if (!cart.length) {
+    summaryEl.innerHTML = `<div class="empty-state">Your cart is empty. <a href="index.html" style="color:var(--copper-deep);text-decoration:underline;">Go back to shop</a></div>`;
+    document.getElementById("placeOrderBtn").disabled = true;
+    return;
+  }
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  summaryEl.innerHTML = `
+    ${cart.map(item => `
+      <div class="summary-item">
+        <img src="${item.image}" alt="${item.name}">
+        <div class="summary-item-info">
+          <div class="summary-item-name">${item.name}</div>
+          <div class="summary-item-meta">Size: ${item.size} · Qty: ${item.quantity}</div>
+        </div>
+        <div>Rs. ${(item.price * item.quantity).toLocaleString()}</div>
+      </div>
+    `).join("")}
+    <div class="summary-row"><span>Subtotal</span><span>Rs. ${subtotal.toLocaleString()}</span></div>
+    <div class="summary-row"><span>Shipping</span><span>FREE</span></div>
+    <div class="summary-total"><span>Total</span><span>Rs. ${subtotal.toLocaleString()}</span></div>
+  `;
+}
+renderSummary();
+
+document.getElementById("placeOrderBtn").addEventListener("click", async () => {
+  const msg = document.getElementById("checkoutMsg");
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const address = document.getElementById("custAddress").value.trim();
+  const city = document.getElementById("custCity").value.trim();
+
+  if (!name || !phone || !address || !city) {
+    msg.textContent = "Please fill in name, phone, address, and city.";
+    msg.className = "form-msg error";
+    return;
+  }
+  if (!cart.length) return;
+
+  msg.textContent = "Placing order…";
+  msg.className = "form-msg";
+  document.getElementById("placeOrderBtn").disabled = true;
+
+  try {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: cart.map(i => ({ productId: i.productId, quantity: i.quantity, size: i.size })),
+        customerName: name,
+        phone,
+        address,
+        city,
+        notes: document.getElementById("custNotes").value.trim(),
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Order failed");
+
+    localStorage.removeItem("flexfit_cart");
+    document.querySelector(".checkout-wrap").innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:60px 20px;">
+        <h2 style="margin-bottom:12px;">Order Placed!</h2>
+        <p style="color:#8a8367;margin-bottom:24px;">Thank you, ${name}. We'll contact you shortly to confirm delivery.</p>
+        <a href="index.html" class="btn btn-solid">Continue Shopping</a>
+      </div>
+    `;
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = "form-msg error";
+    document.getElementById("placeOrderBtn").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
