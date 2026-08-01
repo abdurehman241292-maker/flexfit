@@ -1,32 +1,29 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const Product = require("../models/Product");
 const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// --- image upload setup ---
-const fs = require("fs");
-const uploadsDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "flexfit-products",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 });
+
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    const ok = /jpeg|jpg|png|webp/.test(file.mimetype);
-    cb(ok ? null : new Error("Only image files are allowed"), ok);
-  },
 });
 
 // GET /api/products  (public - optional ?category=shirts)
@@ -64,7 +61,7 @@ router.post("/", requireAdmin, upload.single("image"), async (req, res) => {
       price,
       category,
       description,
-      image: `/uploads/${req.file.filename}`,
+      image: req.file.path, // Cloudinary's permanent URL
     });
     res.status(201).json(product);
   } catch (err) {
