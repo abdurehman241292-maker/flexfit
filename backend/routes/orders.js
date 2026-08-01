@@ -5,31 +5,50 @@ const Product = require("../models/Product");
 const { requireAdmin } = require("../middleware/auth");
 const { sendOrderNotification } = require("../utils/mailer");
 
-// POST /api/orders (public) - customer places an order
+// POST /api/orders (public) - customer places an order with multiple cart items
 router.post("/", async (req, res) => {
   try {
-    const { productId, quantity, size, customerName, phone, address, notes } = req.body;
+    const { items, customerName, phone, address, city, notes } = req.body;
 
-    const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ error: "Product not found" });
+    if (!items || !items.length) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    let totalAmount = 0;
+    const orderItems = [];
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
+      const qty = item.quantity || 1;
+      totalAmount += product.price * qty;
+      orderItems.push({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        quantity: qty,
+        size: item.size || "N/A",
+      });
+    }
+
+    if (!orderItems.length) {
+      return res.status(400).json({ error: "No valid products in cart" });
+    }
 
     const order = await Order.create({
-      product: product._id,
-      productName: product.name,
-      productPrice: product.price,
-      quantity: quantity || 1,
-      size: size || "N/A",
+      items: orderItems,
+      totalAmount,
       customerName,
       phone,
       address,
+      city,
       notes,
     });
 
-    // Send email notification - don't fail the order if email fails
-   // Respond to the customer immediately - don't make them wait on email
+    // Respond immediately - don't make the customer wait on email
     res.status(201).json({ success: true, orderId: order._id });
 
-    // Send email notification in the background (fire-and-forget)
+    // Send email notification in the background
     sendOrderNotification(order).catch((mailErr) => {
       console.error("Email notification failed:", mailErr.message);
     });
@@ -38,7 +57,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET /api/orders (admin only) - view all orders
+// GET /api/orders (admin only)
 router.get("/", requireAdmin, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
