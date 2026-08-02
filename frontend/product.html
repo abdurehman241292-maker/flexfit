@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlexFit — Product</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  body { background: var(--cream); }
+  .pd-header { background: var(--grad-emerald); padding: 20px 0; border-bottom: 1px solid var(--border-hairline); }
+  .pd-header .container { display: flex; align-items: center; justify-content: space-between; }
+  .pd-wrap {
+    max-width: 1100px; margin: 0 auto; padding: 44px 28px 100px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+  }
+  .pd-image { background: var(--cream-dim); border: 1px solid var(--border-hairline); overflow: hidden; }
+  .pd-image img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+  .pd-cat { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-deep); font-weight: 700; margin-bottom: 10px; }
+  .pd-name { font-size: 2rem; margin-bottom: 6px; }
+  .pd-sku { font-size: 0.78rem; color: #8a8367; margin-bottom: 18px; }
+  .pd-price { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--emerald-deep); margin-bottom: 26px; }
+  .pd-section { margin-bottom: 26px; }
+  .pd-section-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--emerald-deep); margin-bottom: 12px; }
+  .size-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .size-opt {
+    min-width: 52px; padding: 10px 14px; border: 1px solid var(--border-hairline);
+    background: #fff; text-align: center; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+    color: var(--emerald-deep); transition: all 0.15s;
+  }
+  .size-opt:hover { border-color: var(--copper); }
+  .size-opt.selected { background: var(--grad-emerald); color: var(--copper-bright); border-color: transparent; }
+  .qty-row { display: flex; align-items: center; gap: 14px; }
+  .qty-control { display: flex; align-items: center; border: 1px solid var(--border-hairline); }
+  .qty-control button { width: 40px; height: 40px; background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--emerald-deep); }
+  .qty-control span { width: 40px; text-align: center; font-weight: 600; }
+  .pd-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+  .pd-wish-btn {
+    width: 48px; height: 48px; flex-shrink: 0; border: 1px solid var(--border-hairline); background: #fff;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s;
+  }
+  .pd-wish-btn:hover { transform: scale(1.08); }
+  .pd-wish-btn svg { width: 20px; height: 20px; stroke: var(--emerald-deep); fill: none; }
+  .pd-wish-btn.active svg { fill: var(--rust); stroke: var(--rust); }
+  .pd-add-btn { flex: 1; }
+  .pd-desc { color: #6b6a5f; font-size: 0.92rem; line-height: 1.7; margin-top: 26px; padding-top: 26px; border-top: 1px solid var(--border-hairline); }
+  .pd-help { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--border-hairline); display: flex; align-items: center; gap: 18px; }
+  .pd-help h4 { font-size: 1.05rem; }
+  .pd-help .num { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--emerald-deep); }
+  .pd-help .hrs { font-size: 0.78rem; color: #8a8367; }
+  @media (max-width: 800px) { .pd-wrap { grid-template-columns: 1fr; gap: 30px; } }
+</style>
+</head>
+<body>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="brand">
+      <div class="crest"><span>FF</span></div>
+      <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+    </div>
+    <a href="index.html" class="btn btn-ghost" style="padding:10px 18px;">← Back to Store</a>
+  </div>
+</header>
+
+<div class="pd-wrap" id="pdWrap">
+  <div class="empty-state" style="grid-column:1/-1;">Loading…</div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="brand" style="margin-bottom:16px;">
+          <div class="crest"><span>FF</span></div>
+          <div class="brand-name">FlexFit<small>Est. Clothing House</small></div>
+        </div>
+        <p style="max-width:320px;">Shirts, caps, trousers and jackets cut for everyday wear, with the finish of something far more formal.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:abdurehman241292@gmail.com">abdurehman241292@gmail.com</a>
+        <a href="tel:03265810966">0326-5810966</a>
+      </div>
+    </div>
+    <div class="footer-bottom">Created by <strong>Abdurehman</strong> · © 2026 FlexFit. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const SIZE_MAP = {
+  shirts: ["S", "M", "L", "XL", "XXL"],
+  jackets: ["S", "M", "L", "XL", "XXL"],
+  trousers: ["32", "34", "36", "38", "40", "42"],
+  caps: ["One Size"],
+};
+
+const params = new URLSearchParams(window.location.search);
+const productId = params.get("id");
+let cart = JSON.parse(localStorage.getItem("flexfit_cart") || "[]");
+let favorites = JSON.parse(localStorage.getItem("flexfit_favs") || "[]");
+let selectedSize = null;
+let qty = 1;
+let currentProduct = null;
+
+function saveCart() { localStorage.setItem("flexfit_cart", JSON.stringify(cart)); }
+function saveFavs() { localStorage.setItem("flexfit_favs", JSON.stringify(favorites)); }
+
+async function loadProduct() {
+  const wrap = document.getElementById("pdWrap");
+  if (!productId) {
+    wrap.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">No product selected.</div>`;
+    return;
+  }
+  try {
+    const res = await fetch(`/api/products/${productId}`);
+    if (!res.ok) throw new Error("Product not found");
+    currentProduct = await res.json();
+    renderProduct();
+  } catch (err) {
+    wrap.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Couldn't load this product.</div>`;
+  }
+}
+
+function renderProduct() {
+  const p = currentProduct;
+  const sizes = SIZE_MAP[p.category] || ["One Size"];
+  const sku = "FF-" + p.category.slice(0, 3).toUpperCase() + "-" + p._id.slice(-5).toUpperCase();
+  const isFav = favorites.includes(p._id);
+  selectedSize = sizes[0];
+
+  document.getElementById("pdWrap").innerHTML = `
+    <div class="pd-image"><img src="${p.image}" alt="${p.name}"></div>
+    <div>
+      <div class="pd-cat">${p.category}</div>
+      <h1 class="pd-name">${p.name}</h1>
+      <div class="pd-sku">SKU: ${sku}</div>
+      <div class="pd-price">Rs. ${Number(p.price).toLocaleString()}</div>
+
+      <div class="pd-section">
+        <div class="pd-section-label">Size</div>
+        <div class="size-grid" id="sizeGrid">
+          ${sizes.map((s, i) => `<div class="size-opt ${i === 0 ? "selected" : ""}" data-size="${s}" onclick="selectSize('${s}', this)">${s}</div>`).join("")}
+        </div>
+      </div>
+
+      <div class="pd-section">
+        <div class="pd-section-label">Quantity</div>
+        <div class="qty-row">
+          <div class="qty-control">
+            <button onclick="changeQty(-1)">−</button>
+            <span id="qtyDisplay">1</span>
+            <button onclick="changeQty(1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-actions">
+        <button class="pd-wish-btn ${isFav ? "active" : ""}" id="pdWishBtn" onclick="toggleWish()">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.3 4.5 6 4c2-.3 3.7.8 6 3 2.3-2.2 4-3.3 6-3 3.7.5 5.5 4 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
+        </button>
+        <button class="btn btn-solid pd-add-btn" onclick="addToCart()">Add to Cart</button>
+      </div>
+
+      ${p.description ? `<div class="pd-desc">${p.description}</div>` : ""}
+
+      <div class="pd-help">
+        <div>
+          <h4>Need Help?</h4>
+        </div>
+        <div>
+          <div class="num">0326-5810966</div>
+          <div class="hrs">Everyday, 10:00 AM – 8:00 PM</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectSize(size, el) {
+  selectedSize = size;
+  document.querySelectorAll(".size-opt").forEach((o) => o.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+function changeQty(delta) {
+  qty = Math.max(1, qty + delta);
+  document.getElementById("qtyDisplay").textContent = qty;
+}
+
+function toggleWish() {
+  const btn = document.getElementById("pdWishBtn");
+  if (favorites.includes(currentProduct._id)) {
+    favorites = favorites.filter((f) => f !== currentProduct._id);
+    btn.classList.remove("active");
+  } else {
+    favorites.push(currentProduct._id);
+    btn.classList.add("active");
+  }
+  saveFavs();
+}
+
+function addToCart() {
+  const existing = cart.find((i) => i.productId === currentProduct._id && i.size === selectedSize);
+  if (existing) {
+    existing.quantity += qty;
+  } else {
+    cart.push({
+      productId: currentProduct._id,
+      name: currentProduct.name,
+      price: currentProduct.price,
+      image: currentProduct.image,
+      size: selectedSize,
+      quantity: qty,
+    });
+  }
+  saveCart();
+  const btn = document.querySelector(".pd-add-btn");
+  const original = btn.textContent;
+  btn.textContent = "Added to Cart";
+  setTimeout(() => (btn.textContent = original), 1400);
+}
+
+loadProduct();
+</script>
+</body>
+</html>

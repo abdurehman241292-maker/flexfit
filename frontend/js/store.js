@@ -45,13 +45,13 @@ async function loadCategory(category) {
 function renderCard(p) {
   const isFav = favorites.includes(p._id);
   return `
-    <div class="product-card reveal">
+    <div class="product-card reveal" onclick="location.href='product.html?id=${p._id}'" style="cursor:pointer;">
       <div class="product-image">
         <img src="${p.image}" alt="${p.name}" loading="lazy">
-        <button class="fav-btn ${isFav ? "active" : ""}" onclick="toggleFav('${p._id}', this)">
+        <button class="fav-btn ${isFav ? "active" : ""}" onclick="event.stopPropagation(); toggleFav('${p._id}', this)">
           <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.3 4.5 6 4c2-.3 3.7.8 6 3 2.3-2.2 4-3.3 6-3 3.7.5 5.5 4 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
         </button>
-        <button class="cart-overlay-btn" onclick="quickAdd('${p._id}', this)" aria-label="Add to cart">
+        <button class="cart-overlay-btn" onclick="event.stopPropagation(); quickAdd('${p._id}', this)" aria-label="Add to cart">
           <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
         </button>
       </div>
