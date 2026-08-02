@@ -63,9 +63,9 @@
     <div class="add-form">
       <h3 style="margin-bottom:20px;">List a New Item</h3>
       <form id="addForm">
-        <div class="field">
-          <label>Product Name</label>
-          <input type="text" id="pName" required>
+       <div class="field">
+          <label>Pictures (up to 6)</label>
+          <input type="file" id="pImage" accept="image/*" multiple required>
         </div>
         <div class="field-row">
           <div class="field">
@@ -145,7 +145,7 @@ async function loadProducts() {
   }
   grid.innerHTML = products.map(p => `
     <div class="admin-card">
-      <img src="${p.image}" alt="${p.name}">
+    <img src="${p.images[0]}" alt="${p.name}">
       <div class="body">
         <div class="name">${p.name}</div>
         <div class="price">Rs. ${Number(p.price).toLocaleString()} · ${p.category}</div>
@@ -173,8 +173,10 @@ document.getElementById("addForm").addEventListener("submit", async (e) => {
   formData.append("price", document.getElementById("pPrice").value);
   formData.append("category", document.getElementById("pCategory").value);
   formData.append("description", document.getElementById("pDescription").value);
-  formData.append("image", document.getElementById("pImage").files[0]);
-
+  const files = document.getElementById("pImage").files;
+  for (let i = 0; i < files.length; i++) {
+    formData.append("images", files[i]);
+  }
   try {
     const res = await fetch("/api/products", {
       method: "POST",

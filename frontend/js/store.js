@@ -47,7 +47,7 @@ function renderCard(p) {
   return `
     <div class="product-card reveal" onclick="location.href='product.html?id=${p._id}'" style="cursor:pointer;">
       <div class="product-image">
-        <img src="${p.image}" alt="${p.name}" loading="lazy">
+       <img src="${p.images[0]}" alt="${p.name}" loading="lazy">
         <button class="fav-btn ${isFav ? "active" : ""}" onclick="event.stopPropagation(); toggleFav('${p._id}', this)">
           <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.3 4.5 6 4c2-.3 3.7.8 6 3 2.3-2.2 4-3.3 6-3 3.7.5 5.5 4 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
         </button>
@@ -90,7 +90,7 @@ function quickAdd(id, btn) {
   if (existing) {
     existing.quantity += 1;
   } else {
-    cart.push({ productId: id, name: product.name, price: product.price, image: product.image, size: "L", quantity: 1 });
+    cart.push({ productId: id, name: product.name, price: product.price,image: product.images[0], size: "L", quantity: 1 });
   }
   saveCart();
   btn.classList.add("added");
@@ -186,7 +186,7 @@ function renderFavDrawer() {
     .map(
       (p) => `
     <div class="cart-item">
-      <img src="${p.image}" alt="${p.name}">
+      <img src="${p.images[0]}" alt="${p.name}">
       <div class="cart-item-info">
         <div class="cart-item-name">${p.name}</div>
         <div class="cart-item-meta">Rs. ${Number(p.price).toLocaleString()}</div>
@@ -208,7 +208,7 @@ function quickAddFromFav(id) {
   if (existing) {
     existing.quantity += 1;
   } else {
-    cart.push({ productId: id, name: product.name, price: product.price, image: product.image, size: "L", quantity: 1 });
+    cart.push({ productId: id, name: product.name, price: product.price,image: product.images[0], size: "L", quantity: 1 });
   }
   saveCart();
 }

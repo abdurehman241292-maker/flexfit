@@ -9,7 +9,14 @@ const productSchema = new mongoose.Schema(
       required: true,
       enum: ["shirts", "caps", "trousers", "jackets"],
     },
-    image: { type: String, required: true }, // stored path e.g. /uploads/filename.jpg
+    images: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length > 0,
+        message: "At least one image is required",
+      },
+    }, // Cloudinary URLs
     description: { type: String, default: "" },
     inStock: { type: Boolean, default: true },
   },

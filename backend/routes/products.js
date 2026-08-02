@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB per file
 });
 
 // GET /api/products  (public - optional ?category=shirts)
@@ -49,19 +49,19 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST /api/products (admin only) - name, price, category, description, image file
-router.post("/", requireAdmin, upload.single("image"), async (req, res) => {
+// POST /api/products (admin only) - name, price, category, description, up to 6 images
+router.post("/", requireAdmin, upload.array("images", 6), async (req, res) => {
   try {
     const { name, price, category, description } = req.body;
-    if (!name || !price || !category || !req.file) {
-      return res.status(400).json({ error: "name, price, category and image are all required" });
+    if (!name || !price || !category || !req.files || !req.files.length) {
+      return res.status(400).json({ error: "name, price, category and at least one image are all required" });
     }
     const product = await Product.create({
       name,
       price,
       category,
       description,
-      image: req.file.path, // Cloudinary's permanent URL
+      images: req.files.map((f) => f.path), // Cloudinary URLs
     });
     res.status(201).json(product);
   } catch (err) {
