@@ -51,14 +51,14 @@ function renderCard(p) {
         <button class="fav-btn ${isFav ? "active" : ""}" onclick="toggleFav('${p._id}', this)">
           <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.3 4.5 6 4c2-.3 3.7.8 6 3 2.3-2.2 4-3.3 6-3 3.7.5 5.5 4 4 7.7C19.5 16.4 12 21 12 21z"/></svg>
         </button>
+        <button class="cart-overlay-btn" onclick="quickAdd('${p._id}', this)" aria-label="Add to cart">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </button>
       </div>
       <div class="product-info">
         <div class="product-cat">${p.category}</div>
         <div class="product-name">${p.name}</div>
-        <div class="product-footer">
-          <div class="product-price">Rs. ${Number(p.price).toLocaleString()}</div>
-          <button class="order-btn" onclick="quickAdd('${p._id}', this)">Add</button>
-        </div>
+        <div class="product-price">Rs. ${Number(p.price).toLocaleString()}</div>
       </div>
     </div>
   `;
@@ -73,6 +73,14 @@ function toggleFav(id, btn) {
     btn.classList.add("active");
   }
   saveFavs();
+  updateFavBadge();
+}
+
+function updateFavBadge() {
+  const badge = document.getElementById("favBadge");
+  if (!badge) return;
+  badge.textContent = favorites.length;
+  badge.style.display = favorites.length > 0 ? "flex" : "none";
 }
 
 function quickAdd(id, btn) {
@@ -85,12 +93,8 @@ function quickAdd(id, btn) {
     cart.push({ productId: id, name: product.name, price: product.price, image: product.image, size: "L", quantity: 1 });
   }
   saveCart();
-  btn.textContent = "Added";
   btn.classList.add("added");
-  setTimeout(() => {
-    btn.textContent = "Add";
-    btn.classList.remove("added");
-  }, 1200);
+  setTimeout(() => btn.classList.remove("added"), 900);
 }
 
 // ---------- Reveal-on-scroll animation ----------
@@ -168,6 +172,69 @@ function closeCart() {
   document.getElementById("cartDrawer").classList.remove("open");
 }
 
+// ---------- Favorites Drawer ----------
+function renderFavDrawer() {
+  const body = document.getElementById("favDrawerBody");
+  const favProducts = allProducts.filter((p) => favorites.includes(p._id));
+
+  if (!favProducts.length) {
+    body.innerHTML = `<div class="empty-state">No favorites yet — tap the heart on a product to save it here.</div>`;
+    return;
+  }
+
+  body.innerHTML = favProducts
+    .map(
+      (p) => `
+    <div class="cart-item">
+      <img src="${p.image}" alt="${p.name}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-meta">Rs. ${Number(p.price).toLocaleString()}</div>
+        <div class="cart-item-controls">
+          <button class="qty-btn" style="width:auto;border-radius:2px;padding:0 10px;font-size:0.7rem;" onclick="quickAddFromFav('${p._id}')">Add to Cart</button>
+          <button class="remove-item" onclick="removeFav('${p._id}')">Remove</button>
+        </div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+}
+
+function quickAddFromFav(id) {
+  const product = allProducts.find((p) => p._id === id);
+  if (!product) return;
+  const existing = cart.find((i) => i.productId === id && i.size === "L");
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ productId: id, name: product.name, price: product.price, image: product.image, size: "L", quantity: 1 });
+  }
+  saveCart();
+}
+
+function removeFav(id) {
+  favorites = favorites.filter((f) => f !== id);
+  saveFavs();
+  updateFavBadge();
+  renderFavDrawer();
+  document.querySelectorAll(`.fav-btn`).forEach((btn) => {
+    if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes(id)) {
+      btn.classList.remove("active");
+    }
+  });
+}
+
+function openFav() {
+  renderFavDrawer();
+  document.getElementById("favDrawerOverlay").classList.add("open");
+  document.getElementById("favDrawer").classList.add("open");
+}
+function closeFav() {
+  document.getElementById("favDrawerOverlay").classList.remove("open");
+  document.getElementById("favDrawer").classList.remove("open");
+}
+
 // ---------- Search ----------
 function openSearch() {
   document.getElementById("searchOverlay").classList.add("open");
@@ -193,12 +260,17 @@ function runSearch(query) {
 // ---------- Init ----------
 document.addEventListener("DOMContentLoaded", async () => {
   updateCartBadge();
+  updateFavBadge();
   await loadAllProducts();
   CATEGORIES.forEach(loadCategory);
 
   document.getElementById("cartIconBtn").addEventListener("click", openCart);
   document.getElementById("drawerClose").addEventListener("click", closeCart);
   document.getElementById("drawerOverlay").addEventListener("click", closeCart);
+
+  document.getElementById("favIconBtn").addEventListener("click", openFav);
+  document.getElementById("favDrawerClose").addEventListener("click", closeFav);
+  document.getElementById("favDrawerOverlay").addEventListener("click", closeFav);
 
   document.getElementById("searchIconBtn").addEventListener("click", openSearch);
   document.getElementById("searchClose").addEventListener("click", closeSearch);
